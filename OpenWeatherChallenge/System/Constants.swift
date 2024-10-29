@@ -19,7 +19,6 @@ extension Constants {
 		static let imagePath = "https://openweathermap.org/img/wn/10d@2x.png"
 		static let basePath = "https://api.openweathermap.org/"
 		
-		static let geocodingReversePath = Self.basePath + "geo/1.0/reverse"
 		static let currentWeatherPath = Self.basePath + "data/2.5/weather"
 	}
 }
