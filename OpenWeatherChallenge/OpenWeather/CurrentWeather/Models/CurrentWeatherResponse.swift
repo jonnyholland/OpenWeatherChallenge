@@ -1,36 +1,14 @@
 //
-//  OpenWeather Models.swift
+//  CurrentWeatherResponse.swift
 //  OpenWeatherChallenge
 //
-//  Created by Jonathan Holland on 10/28/24.
+//  Created by Jonathan Holland on 1/14/25.
 //
 
 import Foundation
 
-/// An object to store coordinates.
-struct WeatherCoordinates: Decodable, Hashable, Equatable {
-	let latitude: String
-	let longitude: String
-	
-	enum CodingsKeys: String, CodingKey {
-		case latitude = "lat"
-		case longitude = "lon"
-	}
-	
-	init(latitude: String, longitude: String) {
-		self.latitude = latitude
-		self.longitude = longitude
-	}
-	
-	init(from decoder: any Decoder) throws {
-		let container = try decoder.container(keyedBy: CodingsKeys.self)
-		self.latitude = "\(try container.decode(Double.self, forKey: .latitude))"
-		self.longitude = "\(try container.decode(Double.self, forKey: .longitude))"
-	}
-}
-
 /// The response object as defined on [OpenWeather's documentation](https://openweathermap.org/current#example_JSON).
-struct OpenWeatherResponse: Decodable, Equatable {
+struct CurrentWeatherResponse: Decodable, Equatable {
 	let base: String
 	let cod: Int
 	let coordinates: WeatherCoordinates
@@ -62,7 +40,7 @@ struct OpenWeatherResponse: Decodable, Equatable {
 	}
 }
 
-extension OpenWeatherResponse {
+extension CurrentWeatherResponse {
 	struct WeatherObject: Decodable, Equatable {
 		let id: Int
 		let main: String

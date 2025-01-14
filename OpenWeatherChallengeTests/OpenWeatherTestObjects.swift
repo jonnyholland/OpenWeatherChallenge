@@ -15,11 +15,11 @@ actor OpenWeatherProviderSpy: CurrentWeatherProvider {
 		self.networking = networking
 	}
 	
-	func getCurrentWeather(for city: String) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(for city: String) async throws -> CurrentWeatherResponse {
 		return try await networking.get(from: .init(url: .applicationDirectory))
 	}
 	
-	func getCurrentWeather(from coordinates: WeatherCoordinates) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(from coordinates: WeatherCoordinates) async throws -> CurrentWeatherResponse {
 		return try await self.networking.get(from: .init(url: .applicationDirectory))
 	}
 }

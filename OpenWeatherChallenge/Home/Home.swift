@@ -27,7 +27,7 @@ extension Home {
 		
 		let isCurrentLocation: Bool
 		
-		init(from responseObject: OpenWeatherResponse, isCurrentLocation: Bool) {
+		init(from responseObject: CurrentWeatherResponse, isCurrentLocation: Bool) {
 			self.coordinates = responseObject.coordinates
 			self.name = responseObject.name
 			self.temp = responseObject.main.temp.description

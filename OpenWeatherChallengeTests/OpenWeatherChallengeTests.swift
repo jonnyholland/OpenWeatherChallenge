@@ -12,11 +12,11 @@ final class OpenWeatherChallengeTests: XCTestCase {
 	func testDecodingWeatherResponseObject() async throws {
 		let nycJSONData = newYorkCityJSON.data(using: .utf8)
 		XCTAssertNotNil(nycJSONData)
-		XCTAssertNoThrow(try JSONDecoder().decode(OpenWeatherResponse.self, from: nycJSONData!))
+		XCTAssertNoThrow(try JSONDecoder().decode(CurrentWeatherResponse.self, from: nycJSONData!))
 		
 		let sanFranData = sanFranciscoJSON.data(using: .utf8)
 		XCTAssertNotNil(sanFranData)
-		XCTAssertNoThrow(try JSONDecoder().decode(OpenWeatherResponse.self, from: sanFranData!))
+		XCTAssertNoThrow(try JSONDecoder().decode(CurrentWeatherResponse.self, from: sanFranData!))
 	}
 	
 	func testNetworkingSucceeds() async throws {
@@ -24,7 +24,7 @@ final class OpenWeatherChallengeTests: XCTestCase {
 		let response = try await sut.getCurrentWeather(for: "")
 		
 		let nycJSONData = newYorkCityJSON.data(using: .utf8)
-		let nycWeather = try JSONDecoder().decode(OpenWeatherResponse.self, from: nycJSONData!)
+		let nycWeather = try JSONDecoder().decode(CurrentWeatherResponse.self, from: nycJSONData!)
 		
 		XCTAssertEqual(response, nycWeather)
 	}
@@ -34,7 +34,7 @@ final class OpenWeatherChallengeTests: XCTestCase {
 		let response = try await sut.getCurrentWeather(for: "")
 		
 		let sanFranData = sanFranciscoJSON.data(using: .utf8)
-		let sanFranWeather = try JSONDecoder().decode(OpenWeatherResponse.self, from: sanFranData!)
+		let sanFranWeather = try JSONDecoder().decode(CurrentWeatherResponse.self, from: sanFranData!)
 		
 		XCTAssertNotEqual(response, sanFranWeather)
 	}
