@@ -21,7 +21,7 @@ final class OpenWeatherChallengeTests: XCTestCase {
 	
 	func testNetworkingSucceeds() async throws {
 		let sut = OpenWeatherProviderSpy()
-		let response = try await sut.getWeather(for: "")
+		let response = try await sut.getCurrentWeather(for: "")
 		
 		let nycJSONData = newYorkCityJSON.data(using: .utf8)
 		let nycWeather = try JSONDecoder().decode(OpenWeatherResponse.self, from: nycJSONData!)
@@ -31,7 +31,7 @@ final class OpenWeatherChallengeTests: XCTestCase {
 	
 	func testNetworkingFails() async throws {
 		let sut = OpenWeatherProviderSpy()
-		let response = try await sut.getWeather(for: "")
+		let response = try await sut.getCurrentWeather(for: "")
 		
 		let sanFranData = sanFranciscoJSON.data(using: .utf8)
 		let sanFranWeather = try JSONDecoder().decode(OpenWeatherResponse.self, from: sanFranData!)

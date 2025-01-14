@@ -8,7 +8,7 @@
 import Foundation
 
 /// A weather provider for OpenWeather calls.
-actor OpenWeatherProvider: WeatherProvider {
+actor OpenWeatherProvider: CurrentWeatherProvider {
 	var networking: any NetworkingLayer
 	
 	init(networking: OpenWeatherNetworking = OpenWeatherNetworking()) {
@@ -17,7 +17,7 @@ actor OpenWeatherProvider: WeatherProvider {
 }
 
 extension OpenWeatherProvider {
-	func getWeather(from coordinates: WeatherCoordinates) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(from coordinates: WeatherCoordinates) async throws -> OpenWeatherResponse {
 		guard let url = URL(string: Constants.OpenWeatherAPI.currentWeatherPath) else {
 			throw NetworkError.invalidURL
 		}
@@ -38,7 +38,7 @@ extension OpenWeatherProvider {
 		return try await self.networking.get(from: URLRequest(url: url))
 	}
 	
-	func getWeather(for city: String) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(for city: String) async throws -> OpenWeatherResponse {
 		guard let url = URL(string: Constants.OpenWeatherAPI.currentWeatherPath) else {
 			throw NetworkError.invalidURL
 		}

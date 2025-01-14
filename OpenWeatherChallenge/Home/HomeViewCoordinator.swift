@@ -15,7 +15,7 @@ extension Home {
 		/// The location manager to get/track user location.
 		private let locationManager: any LocationManagerConforming
 		/// The actor providing weather fetching functionality.
-		private let weatherProvider: WeatherProvider
+		private let weatherProvider: CurrentWeatherProvider
 		/// The app storage of the current location.
 		private let appStorage: UserDefaults
 		
@@ -33,7 +33,7 @@ extension Home {
 		/// 	- appStorage: The user defaults to use for app storage.
 		init(
 			homeViewModel: ViewModel,
-			weatherProvider: WeatherProvider,
+			weatherProvider: CurrentWeatherProvider,
 			locationManager: any LocationManagerConforming,
 			appStorage: UserDefaults = .standard
 		) {
@@ -79,7 +79,7 @@ extension Home {
 					switch action {
 						case let .search(cityName):
 							do {
-								let response = try await self.weatherProvider.getWeather(for: cityName)
+								let response = try await self.weatherProvider.getCurrentWeather(for: cityName)
 								let location = Home.Location(from: response, isCurrentLocation: false)
 								self.homeViewModel.currentLocation = location
 								self.store(coordinates: (location.coordinates.latitude, location.coordinates.longitude))
@@ -101,7 +101,7 @@ extension Home {
 		/// Fetches weather for the specified coordinates.
 		private func getWeather(for coordinates: WeatherCoordinates, isCurrentLocation: Bool) async {
 			do {
-				let response = try await self.weatherProvider.getWeather(from: coordinates)
+				let response = try await self.weatherProvider.getCurrentWeather(from: coordinates)
 				self.homeViewModel.currentLocation = .init(from: response, isCurrentLocation: isCurrentLocation)
 			} catch {
 				self.homeViewModel.fetchError = error

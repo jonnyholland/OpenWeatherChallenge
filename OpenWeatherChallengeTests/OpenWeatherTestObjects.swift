@@ -8,18 +8,18 @@
 import Foundation
 @testable import OpenWeatherChallenge
 
-actor OpenWeatherProviderSpy: WeatherProvider {
+actor OpenWeatherProviderSpy: CurrentWeatherProvider {
 	var networking: any NetworkingLayer
 	
 	init(networking: any NetworkingLayer = NetworkingSpy()) {
 		self.networking = networking
 	}
 	
-	func getWeather(for city: String) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(for city: String) async throws -> OpenWeatherResponse {
 		return try await networking.get(from: .init(url: .applicationDirectory))
 	}
 	
-	func getWeather(from coordinates: WeatherCoordinates) async throws -> OpenWeatherResponse {
+	func getCurrentWeather(from coordinates: WeatherCoordinates) async throws -> OpenWeatherResponse {
 		return try await self.networking.get(from: .init(url: .applicationDirectory))
 	}
 }
