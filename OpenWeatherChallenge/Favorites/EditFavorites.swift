@@ -39,6 +39,7 @@ struct EditFavorites: View {
 			ToolbarItem(placement: .primaryAction) {
 				Button("Done") {
 					try? self.modelContext.save()
+					self.dismiss()
 				}
 				.disabled(!self.modelContext.hasChanges)
 			}
