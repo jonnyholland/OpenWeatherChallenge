@@ -80,6 +80,11 @@
             value = "17689582c64180c4cd6462744e0c707d"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "THE_COMPANIES_API_TOKEN"
+            value = "VS8KYUm5D4czutGvMOoqfeOuwiwChzdB"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction

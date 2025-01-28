@@ -5,19 +5,25 @@
 //  Created by Jonathan Holland on 10/28/24.
 //
 
+import SwiftData
 import SwiftUI
 
 extension Home {
 	/// The coordinator for the home view.
-	class ViewCoordinator<ViewModel: HomeViewModel>: UIHostingController<ContentView<ViewModel>> {
+	@Observable
+	class ViewCoordinator {
 		/// The view model used with the content view.
-		private let homeViewModel: any HomeViewModelProtocol
+		private let homeViewModel: any HomeViewModel
 		/// The location manager to get/track user location.
 		private let locationManager: any LocationManagerConforming
 		/// The actor providing weather fetching functionality.
 		private let weatherProvider: CurrentWeatherProvider
+		/// The actor providing cities for search.
+		private let citiesProvider: CitiesProvider
 		/// The app storage of the current location.
-		private let appStorage: UserDefaults
+		private let userDefaults: UserDefaults
+		
+		private let appStorage: ModelContainer
 		
 		/// The task for listening to location streams.
 		var locationTask: Task<Void, Never>?
@@ -29,26 +35,53 @@ extension Home {
 		/// - Parameters:
 		/// 	- homeViewModel: The view model to use with the home view.
 		/// 	- weatherProvider: An actor that provides weather fetching functionality.
+		/// 	- citiesProvider: An actor that provides cities for search functionality.
 		/// 	- locationManager: The location manager to use with the home coordinator.
-		/// 	- appStorage: The user defaults to use for app storage.
+		/// 	- userDefaults: The user defaults to use for app storage.
+		/// 	- appStorage: The storage container for local storage.
 		init(
-			homeViewModel: ViewModel,
+			homeViewModel: any HomeViewModel,
 			weatherProvider: CurrentWeatherProvider,
+			citiesProvider: CitiesProvider,
 			locationManager: any LocationManagerConforming,
-			appStorage: UserDefaults = .standard
+			userDefaults: UserDefaults = .standard,
+			appStorage: ModelContainer
 		) {
 			self.homeViewModel = homeViewModel
 			self.weatherProvider = weatherProvider
+			self.citiesProvider = citiesProvider
 			self.locationManager = locationManager
+			self.userDefaults = userDefaults
 			self.appStorage = appStorage
 			
-			super.init(rootView: ContentView(viewModel: homeViewModel))
-		}
-		
-		override func viewDidLoad() {
+			// Loading
 			self.locationManager.checkLocationAuthorization()
+			self._fetchFavoritesFromStorage()
 			self.setUpLocationStream()
 			self.setUpActionsStream()
+		}
+		
+		var view: any View {
+			self._buildView(viewModel: self.homeViewModel)
+		}
+		
+		private func _buildView<ViewModel: HomeViewModel>(viewModel: ViewModel) -> some View {
+			NavigationStack {
+				ContentView(viewModel: viewModel)
+			}
+		}
+		
+		private func _fetchFavoritesFromStorage() {
+			let favorites = FetchDescriptor<FavoriteWeather>(
+				sortBy: [
+					.init(\.order)
+				]
+			)
+			
+			Task { @MainActor in
+				let results = try self.appStorage.mainContext.fetch(favorites)
+				await self.getWeather(from: results)
+			}
 		}
 		
 		/// Set up stream to update the last known location for the user.
@@ -58,14 +91,14 @@ extension Home {
 			self.locationTask = Task { @MainActor in
 				for await location in self.locationManager.lastKnownLocation {
 					if let location {
-						if let latitude = self.appStorage.value(forKey: Constants.latitudeKey) as? String, let longitude = self.appStorage.value(forKey: Constants.longitudeKey) as? String {
+						if let latitude = self.userDefaults.value(forKey: Constants.latitudeKey) as? String, let longitude = self.userDefaults.value(forKey: Constants.longitudeKey) as? String {
 							let coordinates = WeatherCoordinates(latitude: latitude, longitude: longitude)
-							await self.getWeather(for: coordinates, isCurrentLocation: true)
+							await self.getCurrentLocationWeather(for: coordinates)
 						} else {
 							self.store(coordinates: (location.latitude.formatted(), location.longitude.formatted()))
 							
 							let coordinates = WeatherCoordinates(latitude: "\(location.latitude)", longitude: "\(location.longitude)")
-							await self.getWeather(for: coordinates, isCurrentLocation: true)
+							await self.getCurrentLocationWeather(for: coordinates)
 						}
 					}
 				}
@@ -76,17 +109,23 @@ extension Home {
 		private func setUpActionsStream() {
 			self.actionsTask = Task { @MainActor in
 				for await action in self.homeViewModel.actionsStream {
-					switch action {
-						case let .search(cityName):
-							do {
-								let response = try await self.weatherProvider.getCurrentWeather(for: cityName)
-								let location = Home.Location(from: response, isCurrentLocation: false)
-								self.homeViewModel.currentLocation = location
-								self.store(coordinates: (location.coordinates.latitude, location.coordinates.longitude))
-							} catch {
-								self.homeViewModel.fetchError = error
-								self.homeViewModel.showFetchError = true
-							}
+					do {
+						switch action {
+							case let .search(cityName):
+								let response = try await self.citiesProvider.getCities(for: cityName)
+								self.homeViewModel.locationSuggestions = response.cities
+							case let .getWeatherFor(suggestion):
+								let coordinates = WeatherCoordinates(latitude: suggestion.latitude, longitude: suggestion.longitude)
+								let response = try await self.weatherProvider.getCurrentWeather(from: coordinates)
+								self.homeViewModel.selectedLocationSuggestion = .init(from: response, isCurrentLocation: false)
+							case let .addFavorite(location):
+								self.homeViewModel.favorites.append(location)
+							case .refresh:
+								self._fetchFavoritesFromStorage()
+						}
+					} catch {
+						self.homeViewModel.fetchError = error
+						self.homeViewModel.showFetchError = true
 					}
 				}
 			}
@@ -94,19 +133,33 @@ extension Home {
 		
 		/// Stores the specified latitude and lonitude in storage.
 		private func store(coordinates: (latitude: String, longitude: String)) {
-			self.appStorage.set(coordinates.latitude, forKey: Constants.latitudeKey)
-			self.appStorage.set(coordinates.longitude, forKey: Constants.longitudeKey)
+			self.userDefaults.set(coordinates.latitude, forKey: Constants.latitudeKey)
+			self.userDefaults.set(coordinates.longitude, forKey: Constants.longitudeKey)
 		}
 		
 		/// Fetches weather for the specified coordinates.
-		private func getWeather(for coordinates: WeatherCoordinates, isCurrentLocation: Bool) async {
+		@MainActor
+		private func getCurrentLocationWeather(for coordinates: WeatherCoordinates) async {
 			do {
 				let response = try await self.weatherProvider.getCurrentWeather(from: coordinates)
-				self.homeViewModel.currentLocation = .init(from: response, isCurrentLocation: isCurrentLocation)
+				self.homeViewModel.currentLocation = .init(from: response, isCurrentLocation: true)
 			} catch {
 				self.homeViewModel.fetchError = error
 				self.homeViewModel.showFetchError = true
 			}
+		}
+		
+		@MainActor
+		private func getWeather(from savedFavorites: [FavoriteWeather]) async {
+			var favorites = [WeatherLocation]()
+			
+			for favorite in savedFavorites {
+				if let response = try? await self.weatherProvider.getCurrentWeather(for: favorite.cityName) {
+					favorites.append(.init(from: response, isCurrentLocation: false))
+				}
+			}
+			
+			self.homeViewModel.favorites = favorites
 		}
 		
 		deinit {

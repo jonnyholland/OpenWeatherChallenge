@@ -11,8 +11,13 @@ import CoreLocation
 // Typically i would nest this protocol within the namespace but because I'm unsure if you're running Xcode that supports it I'm leaving it unscoped.
 /// An object that is used to model data with the home view.
 protocol HomeViewModelProtocol: ObservableObject {
+	var favorites: [WeatherLocation] { get set }
 	/// The current location to show the user.
-	var currentLocation: Home.Location? { get set }
+	var currentLocation: WeatherLocation? { get set }
+	/// The cities correlating with search.
+	var locationSuggestions: [City] { get set }
+	/// The location currently selected.
+	var selectedLocationSuggestion: WeatherLocation? { get set }
 	/// Whether or not to show the error.
 	var showFetchError: Bool { get set }
 	/// An error encountered during fetching.
@@ -31,8 +36,10 @@ typealias HomeViewModel = HomeViewModelProtocol & HomeViewActionPerformer
 
 extension Home {
 	class ViewModel: HomeViewModel {
-		@Published var currentLocation: Home.Location?
-		@Published var locationSuggestions: [Home.Location] = []
+		@Published var favorites = [WeatherLocation]()
+		@Published var currentLocation: WeatherLocation?
+		@Published var locationSuggestions: [City] = []
+		@Published var selectedLocationSuggestion: WeatherLocation?
 		@Published var showFetchError: Bool = false
 		@Published var fetchError: Error?
 		var actionsStream: AsyncStream<Home.Actions> {

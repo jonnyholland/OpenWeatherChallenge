@@ -21,4 +21,8 @@ extension Constants {
 		
 		static let currentWeatherPath = Self.basePath + "data/2.5/weather"
 	}
+	
+	enum TheCompaniesAPI {
+		static let citiesPath = "https://api.thecompaniesapi.com/v2/locations/cities"
+	}
 }
