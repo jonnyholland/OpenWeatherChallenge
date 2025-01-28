@@ -11,6 +11,7 @@ import CoreLocation
 // Typically i would nest this protocol within the namespace but because I'm unsure if you're running Xcode that supports it I'm leaving it unscoped.
 /// An object that is used to model data with the home view.
 protocol HomeViewModelProtocol: ObservableObject {
+	/// The favorite locations selected by the user.
 	var favorites: [WeatherLocation] { get set }
 	/// The current location to show the user.
 	var currentLocation: WeatherLocation? { get set }

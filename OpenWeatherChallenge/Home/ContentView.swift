@@ -37,7 +37,6 @@ extension Home {
 			}
 			.scrollTargetBehavior(.viewAligned)
 			.scrollBounceBehavior(.basedOnSize)
-			.foregroundStyle(.white)
 			.safeAreaPadding()
 			.frame(maxWidth: .infinity)
 			.background(Color.blue.gradient)

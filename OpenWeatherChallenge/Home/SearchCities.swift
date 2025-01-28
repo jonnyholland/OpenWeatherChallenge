@@ -60,6 +60,7 @@ extension Home.ContentView {
 							}
 						}
 				}
+				.tint(.white)
 			}
 		}
 	}
