@@ -11,7 +11,7 @@ import Foundation
 actor OpenWeatherProvider: CurrentWeatherProvider {
 	var networking: any NetworkingLayer
 	
-	init(networking: any NetworkingLayer = OpenWeatherNetworking()) {
+	init(networking: any NetworkingLayer = SharedNetworking()) {
 		self.networking = networking
 	}
 }
@@ -60,7 +60,7 @@ extension OpenWeatherProvider {
 }
 
 /// Networking layer for OpenWeather.
-actor OpenWeatherNetworking: NetworkingLayer {
+actor SharedNetworking: NetworkingLayer {
 	var urlSession: URLSession
 	
 	init(urlSession: URLSession = .shared) {
