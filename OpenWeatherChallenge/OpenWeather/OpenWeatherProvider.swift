@@ -59,6 +59,29 @@ extension OpenWeatherProvider {
 	}
 }
 
+extension OpenWeatherProvider: @preconcurrency HourlyForecastProvider {
+	func getHourlyForecast(from coordinates: WeatherCoordinates) async throws -> ForecastWeatherBaseResponse {
+		guard let url = URL(string: Constants.OpenWeatherAPI.hourlyForecast) else {
+			throw NetworkError.invalidURL
+		}
+		
+		guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+			throw NetworkError.unableToBuildRequest
+		}
+		urlComponents.queryItems = [
+			URLQueryItem(name: "lat", value: coordinates.latitude),
+			URLQueryItem(name: "lon", value: coordinates.longitude),
+			URLQueryItem(name: "units", value: "imperial"),
+			URLQueryItem(name: "appid", value: ProcessInfo.processInfo.environment["API_Key"]),
+		]
+		guard let url = urlComponents.url else {
+			throw NetworkError.unableToBuildRequest
+		}
+		
+		return try await self.networking.get(from: URLRequest(url: url))
+	}
+}
+
 /// Networking layer for OpenWeather.
 actor SharedNetworking: NetworkingLayer {
 	var urlSession: URLSession

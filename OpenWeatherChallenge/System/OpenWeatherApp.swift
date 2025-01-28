@@ -28,6 +28,7 @@ struct OpenWeatherApp: App {
 		}()
 		let viewModel = Home.ViewModel()
 		let weatherProvider = OpenWeatherProvider()
+		viewModel.forecastProvider = weatherProvider
 		let citiesProvider = TheCompaniesAPIPRovider()
 		let locationManager = LocationManager()
 		self.homeCoordinator = Home.ViewCoordinator(homeViewModel: viewModel, weatherProvider: weatherProvider, citiesProvider: citiesProvider, locationManager: locationManager, appStorage: sharedModelContainer)

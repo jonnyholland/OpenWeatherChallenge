@@ -44,7 +44,7 @@ extension Home.ContentView {
 			}
 			.sheet(item: self.$viewModel.selectedLocationSuggestion) { location in
 				NavigationStack {
-					Favorites.DetailView(location: location)
+					Favorites.DetailView(location: location, provider: self.viewModel.forecastProvider)
 						.toolbar {
 							ToolbarItem(placement: .cancellationAction) {
 								Button("Cancel", role: .cancel) {

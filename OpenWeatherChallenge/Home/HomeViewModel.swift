@@ -24,6 +24,8 @@ protocol HomeViewModelProtocol: ObservableObject {
 	var fetchError: Error? { get set }
 	/// A stream of actions to perform for the view.
 	var actionsStream: AsyncStream<Home.Actions> { get }
+	/// The provider for forecast weather.
+	var forecastProvider: HourlyForecastProvider? { get }
 }
 
 protocol HomeViewActionPerformer: ObservableObject {
@@ -42,6 +44,7 @@ extension Home {
 		@Published var selectedLocationSuggestion: WeatherLocation?
 		@Published var showFetchError: Bool = false
 		@Published var fetchError: Error?
+		@Published var forecastProvider: HourlyForecastProvider?
 		var actionsStream: AsyncStream<Home.Actions> {
 			AsyncStream { continuation in
 				self.actionsContinuation = continuation

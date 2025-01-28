@@ -23,11 +23,11 @@ extension Home {
 			ScrollView(.horizontal) {
 				LazyHStack {
 					if let location = self.viewModel.currentLocation {
-						Favorites.DetailView(location: location)
+						Favorites.DetailView(location: location, provider: self.viewModel.forecastProvider)
 							.containerRelativeFrame([.horizontal])
 						
 						ForEach(self.viewModel.favorites, id: \.self) { location in
-							Favorites.DetailView(location: location)
+							Favorites.DetailView(location: location, provider: self.viewModel.forecastProvider)
 						}
 						.containerRelativeFrame([.horizontal])
 					}

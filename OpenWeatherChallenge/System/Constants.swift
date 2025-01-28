@@ -17,9 +17,10 @@ extension Constants {
 	/// A namespace for OpenWeather API related stuff.
 	enum OpenWeatherAPI {
 		static let imagePath = "https://openweathermap.org/img/wn/10d@2x.png"
-		static let basePath = "https://api.openweathermap.org/"
+		static let basePath = "https://api.openweathermap.org/data/2.5/"
 		
-		static let currentWeatherPath = Self.basePath + "data/2.5/weather"
+		static let currentWeatherPath = Self.basePath + "weather"
+		static let hourlyForecast = Self.basePath + "forecast"
 	}
 	
 	enum TheCompaniesAPI {

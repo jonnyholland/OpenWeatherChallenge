@@ -34,4 +34,40 @@ struct WeatherLocation: Hashable, Identifiable {
 @Observable
 class WeatherLocationViewModel {
 	var serviceModel: WeatherLocation
+	var forcastProvider: HourlyForecastProvider?
+	
+	var coordinates: WeatherCoordinates
+	var name: String
+	var temp: String
+	var feelsLike: String
+	var high: String
+	var low: String
+	var isCurrentLocation: Bool
+	
+	var forcast: [ForecastWeatherResponse]?
+	
+	init(serviceModel: WeatherLocation, forcastProvider: HourlyForecastProvider?) {
+		self.serviceModel = serviceModel
+		self.forcastProvider = forcastProvider
+		
+		self.coordinates = serviceModel.coordinates
+		self.name = serviceModel.name
+		self.temp = serviceModel.temp
+		self.feelsLike = serviceModel.feelsLike
+		self.high = serviceModel.high
+		self.low = serviceModel.low
+		self.isCurrentLocation = serviceModel.isCurrentLocation
+		
+		Task {
+			await self.getHourlyForcast()
+		}
+	}
+	
+	private func getHourlyForcast() async {
+		do {
+			self.forcast = try await self.forcastProvider?.getHourlyForecast(from: self.coordinates).list
+		} catch {
+			print("Error decoding forecast: \(error)")
+		}
+	}
 }
