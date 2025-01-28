@@ -12,7 +12,7 @@ protocol CurrentWeatherProvider: Actor {
 	/// The networking layer to use for getting weather.
 	var networking: NetworkingLayer { get }
 	/// Sends request to get current weather based on the given coordinates.
-	/// - Returns: An `CurrentWeatherResponse` object.
+	/// - Returns: A `CurrentWeatherResponse` object.
 	/// - Throws: A `NetworkError` if unable to build request or encountered during processing of request.
 	func getCurrentWeather(from coordinates: WeatherCoordinates) async throws -> CurrentWeatherResponse
 	/// Sends request to get current weather for the specified city name.
