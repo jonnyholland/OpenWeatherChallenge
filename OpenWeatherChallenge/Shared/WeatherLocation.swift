@@ -15,6 +15,7 @@ struct WeatherLocation: Hashable, Identifiable {
 	let feelsLike: String
 	let high: String
 	let low: String
+	let mainWeather: String?
 	
 	let isCurrentLocation: Bool
 	
@@ -26,6 +27,7 @@ struct WeatherLocation: Hashable, Identifiable {
 		self.feelsLike = String(format: "%.0f", responseObject.main.feelsLike.rounded(.towardZero))
 		self.high = String(format: "%.0f", responseObject.main.tempMax.rounded(.towardZero))
 		self.low = String(format: "%.0f", responseObject.main.tempMin.rounded(.towardZero))
+		self.mainWeather = responseObject.weather.first?.main
 		
 		self.isCurrentLocation = isCurrentLocation
 	}
@@ -42,6 +44,7 @@ class WeatherLocationViewModel {
 	var feelsLike: String
 	var high: String
 	var low: String
+	var mainWeather: String?
 	var isCurrentLocation: Bool
 	
 	var forcast: [ForecastWeatherResponse]?
@@ -56,6 +59,7 @@ class WeatherLocationViewModel {
 		self.feelsLike = serviceModel.feelsLike
 		self.high = serviceModel.high
 		self.low = serviceModel.low
+		self.mainWeather = serviceModel.mainWeather
 		self.isCurrentLocation = serviceModel.isCurrentLocation
 		
 		Task {

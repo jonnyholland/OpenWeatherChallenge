@@ -48,6 +48,13 @@ extension Favorites {
 								.offset(x: 40)
 						}
 					
+					if let mainWeather = self.viewModel.mainWeather {
+						Text(mainWeather)
+							.font(.footnote)
+							.fontWeight(.semibold)
+							.padding(.top, 5)
+					}
+					
 					HStack(spacing: 2) {
 						Text("Feels Like:")
 						HStack(alignment: .top, spacing: 0) {
